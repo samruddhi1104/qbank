@@ -20,5 +20,5 @@ Open http://localhost:8081
 `feat:` new feature, `fix:` bug fix, `docs:` documentation, `chore:` setup/tooling, `test:` tests
 
 ## Author
-Samruddhi Gawade, Roll No 23102C0084 (Team A)
+Samruddhi Gawade, Roll No 23102C0084 (Team B)
  

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+  <h1>Dashboard</h1>
+  <nav>
+    <a th:href="@{/questions}">Questions</a>
+    <a th:href="@{/dashboard}">Dashboard</a>
+  </nav>
+
+  <div class="cards">
+    <div class="card">Total<b id="totalCount" th:text="${total}">0</b></div>
+    <div class="card">Draft<b th:text="${draft}">0</b></div>
+    <div class="card">Submitted<b th:text="${submitted}">0</b></div>
+    <div class="card">Approved<b th:text="${approved}">0</b></div>
+    <div class="card">Rejected<b th:text="${rejected}">0</b></div>
+  </div>
+
+  <h2>Questions by subject</h2>
+  <table>
+    <tr><th>Subject</th><th>Count</th></tr>
+    <tr th:each="e : ${bySubject}">
+      <td th:text="${e.key}"></td>
+      <td th:text="${e.value}"></td>
+    </tr>
+  </table>
+</body>
+</html>

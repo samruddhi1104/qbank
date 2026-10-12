@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Question</title>
+  <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+  <h1>Edit Question</h1>
+  <nav>
+    <a th:href="@{/questions}">Questions</a>
+    <a th:href="@{/dashboard}">Dashboard</a>
+  </nav>
+
+  <form th:action="@{/questions/{id}/update(id=${question.id})}" th:object="${question}" method="post" class="box">
+    <label for="text">Question</label>
+    <textarea id="text" th:field="*{text}" rows="3"></textarea>
+    <span class="error" th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></span>
+
+    <label for="subject">Subject</label>
+    <input id="subject" type="text" th:field="*{subject}">
+    <span class="error" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></span>
+
+    <label for="topic">Topic</label>
+    <input id="topic" type="text" th:field="*{topic}">
+
+    <label for="difficulty">Difficulty</label>
+    <select id="difficulty" th:field="*{difficulty}">
+      <option value="EASY">Easy</option>
+      <option value="MEDIUM">Medium</option>
+      <option value="HARD">Hard</option>
+    </select>
+
+    <button id="updateBtn" type="submit" style="margin-top:12px">Update Question</button>
+    <a th:href="@{/questions}">Cancel</a>
+  </form>
+</body>
+</html>

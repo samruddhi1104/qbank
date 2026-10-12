@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Question Bank Portal</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 30px auto; }
+    h1 { color: #1F3864; }
+    form { background: #f5f7fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; }
+    label { display: block; margin-top: 8px; font-weight: bold; }
+    input, select, textarea { width: 100%; padding: 6px; box-sizing: border-box; }
+    button { margin-top: 12px; padding: 8px 18px; background: #2E5597; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
+    .error { color: #c00; font-size: 0.9em; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #1F3864; color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>Automated Question Bank Portal</h1>
+
+  <form th:action="@{/questions}" th:object="${question}" method="post">
+    <label for="text">Question</label>
+    <textarea id="text" th:field="*{text}" rows="3"></textarea>
+    <span class="error" th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></span>
+
+    <label for="subject">Subject</label>
+    <input id="subject" type="text" th:field="*{subject}">
+    <span class="error" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></span>
+
+    <label for="topic">Topic</label>
+    <input id="topic" type="text" th:field="*{topic}">
+
+    <label for="difficulty">Difficulty</label>
+    <select id="difficulty" th:field="*{difficulty}">
+      <option value="">-- Select --</option>
+      <option value="EASY">Easy</option>
+      <option value="MEDIUM">Medium</option>
+      <option value="HARD">Hard</option>
+    </select>
+    <span class="error" th:if="${#fields.hasErrors('difficulty')}" th:errors="*{difficulty}"></span>
+
+    <button id="saveBtn" type="submit">Save Question</button>
+  </form>
+
+  <h2>All Questions</h2>
+  <table id="questionTable">
+    <tr><th>ID</th><th>Question</th><th>Subject</th><th>Topic</th><th>Difficulty</th><th>Status</th></tr>
+    <tr th:each="q : ${questions}">
+      <td th:text="${q.id}"></td>
+      <td th:text="${q.text}"></td>
+      <td th:text="${q.subject}"></td>
+      <td th:text="${q.topic}"></td>
+      <td th:text="${q.difficulty}"></td>
+      <td th:text="${q.status}"></td>
+    </tr>
+  </table>
+</body>
+</html>

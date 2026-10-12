@@ -1,3 +1,4 @@
+@'
 # Automated Question Bank Management Portal
 
 A web portal where faculty create, store, search and review exam questions
@@ -20,3 +21,4 @@ Open http://localhost:8081
 
 ## Author
 Samruddhi Gawade, Roll No 23102C0084
+'@ | Set-Content README.md -Encoding utf8

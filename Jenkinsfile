@@ -33,24 +33,24 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+                stage('Deploy') {
             steps {
                 echo "Deploying to ${params.DEPLOY_ENV} at ${params.TOMCAT_URL}${env.CONTEXT_PATH}"
                 withCredentials([usernamePassword(credentialsId: 'tomcat-creds',
                                  usernameVariable: 'TC_USER',
                                  passwordVariable: 'TC_PASS')]) {
-                    bat '''
-                    curl.exe --fail -u %TC_USER%:%TC_PASS% -T "%WAR_FILE%" "%TOMCAT_URL%/manager/text/deploy?path=%CONTEXT_PATH%&update=true"
-                    '''
+                    bat "curl.exe --fail -u %TC_USER%:%TC_PASS% -T \"%WAR_FILE%\" \"${params.TOMCAT_URL}/manager/text/deploy?path=${env.CONTEXT_PATH}&update=true\""
                 }
             }
         }
 
         stage('Verify') {
             steps {
-                bat 'curl.exe --fail -I "%TOMCAT_URL%%CONTEXT_PATH%/"'
+                bat "curl.exe --fail -I \"${params.TOMCAT_URL}${env.CONTEXT_PATH}/\""
             }
         }
+
+        
     }
 
     post {

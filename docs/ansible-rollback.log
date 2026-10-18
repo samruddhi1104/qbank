@@ -1,0 +1,22 @@
+
+PLAY [Deploy a QBank release with automatic rollback] **************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Find the release that is live now] ***************************************
+ok: [localhost]
+
+TASK [Remember the previous release] *******************************************
+ok: [localhost]
+
+TASK [Create the release folder] ***********************************************
+changed: [localhost]
+
+TASK [Upload the release file] *************************************************
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: If you are using a module and expect the file to exist on the remote, see the remote_src option
+fatal: [localhost]: FAILED! => {"changed": false, "msg": "Could not find or access '/mnt/c/Projects/qbank/ansible/artifacts/qbank-v3-bad.war' on the Ansible Controller.\nIf you are using a module and expect the file to exist on the remote, see the remote_src option"}
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=4    changed=1    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+

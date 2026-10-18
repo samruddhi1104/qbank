@@ -1,0 +1,68 @@
+
+PLAY [Provision the QBank application server] **********************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Install Java 17 runtime and curl] ****************************************
+changed: [localhost]
+
+TASK [Create the service group] ************************************************
+changed: [localhost]
+
+TASK [Create the service user (no login shell)] ********************************
+changed: [localhost]
+
+TASK [Create application folders] **********************************************
+changed: [localhost] => (item=/opt/qbank)
+changed: [localhost] => (item=/opt/qbank/releases)
+changed: [localhost] => (item=/var/log/qbank)
+
+TASK [Install the systemd unit file] *******************************************
+changed: [localhost]
+
+RUNNING HANDLER [Reload systemd] ***********************************************
+ok: [localhost]
+
+TASK [Enable the service at boot] **********************************************
+changed: [localhost]
+
+PLAY [Deploy a QBank release with automatic rollback] **************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Find the release that is live now] ***************************************
+ok: [localhost]
+
+TASK [Remember the previous release] *******************************************
+ok: [localhost]
+
+TASK [Create the release folder] ***********************************************
+changed: [localhost]
+
+TASK [Upload the release file] *************************************************
+changed: [localhost]
+
+TASK [Point current.war at the new release] ************************************
+changed: [localhost]
+
+TASK [Restart the service when the release changed] ****************************
+changed: [localhost]
+
+TASK [Make sure the service is running] ****************************************
+ok: [localhost]
+
+TASK [Health check (HTTP 200 expected)] ****************************************
+FAILED - RETRYING: Health check (HTTP 200 expected) (15 retries left).
+FAILED - RETRYING: Health check (HTTP 200 expected) (14 retries left).
+ok: [localhost]
+
+TASK [Release is healthy] ******************************************************
+ok: [localhost] => {
+    "msg": "Release v1 is live and healthy"
+}
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=18   changed=10   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

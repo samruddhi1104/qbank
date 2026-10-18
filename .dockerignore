@@ -1,0 +1,3 @@
+target/*
+!target/qbank-0.0.1-SNAPSHOT.war
+.git

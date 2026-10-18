@@ -1,0 +1,44 @@
+---
+- name: Reset the node to a clean state
+  hosts: qbank
+  become: true
+  tasks:
+    - name: Stop and disable the service
+      ansible.builtin.systemd:
+        name: qbank
+        state: stopped
+        enabled: false
+      failed_when: false
+
+    - name: Remove the unit file
+      ansible.builtin.file:
+        path: /etc/systemd/system/qbank.service
+        state: absent
+
+    - name: Remove application and log folders
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ base_dir }}"
+        - /var/log/qbank
+
+    - name: Remove the service user
+      ansible.builtin.user:
+        name: "{{ app_user }}"
+        state: absent
+
+    - name: Remove the service group
+      ansible.builtin.group:
+        name: "{{ app_user }}"
+        state: absent
+
+    - name: Remove the Java runtime
+      ansible.builtin.apt:
+        name: openjdk-17-jre-headless
+        state: absent
+        autoremove: true
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true

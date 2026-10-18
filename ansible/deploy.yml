@@ -1,0 +1,102 @@
+---
+- name: Deploy a QBank release with automatic rollback
+  hosts: qbank
+  become: true
+  vars:
+    release_version: v1
+    war_file: /mnt/c/Projects/qbank/ansible/artifacts/qbank-v1.war
+  tasks:
+    - name: Find the release that is live now
+      ansible.builtin.stat:
+        path: "{{ base_dir }}/current.war"
+      register: live
+
+    - name: Remember the previous release
+      ansible.builtin.set_fact:
+        previous_war: "{{ live.stat.lnk_source | default('') }}"
+
+    - name: Create the release folder
+      ansible.builtin.file:
+        path: "{{ base_dir }}/releases/{{ release_version }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0755"
+
+    - name: Upload the release file
+      ansible.builtin.copy:
+        src: "{{ war_file }}"
+        dest: "{{ base_dir }}/releases/{{ release_version }}/app.war"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0644"
+
+    - name: Switch to the new release and verify it
+      block:
+        - name: Point current.war at the new release
+          ansible.builtin.file:
+            src: "{{ base_dir }}/releases/{{ release_version }}/app.war"
+            dest: "{{ base_dir }}/current.war"
+            state: link
+            force: true
+          register: switch
+
+        - name: Restart the service when the release changed
+          ansible.builtin.systemd:
+            name: qbank
+            state: restarted
+          when: switch.changed
+
+        - name: Make sure the service is running
+          ansible.builtin.systemd:
+            name: qbank
+            state: started
+
+        - name: Health check (HTTP 200 expected)
+          ansible.builtin.uri:
+            url: "http://localhost:{{ app_port }}/questions"
+            status_code: 200
+          register: health
+          retries: 15
+          delay: 4
+          until: health.status is defined and health.status == 200
+
+        - name: Release is healthy
+          ansible.builtin.debug:
+            msg: "Release {{ release_version }} is live and healthy"
+
+      rescue:
+        - name: Stop if there is nothing to roll back to
+          ansible.builtin.fail:
+            msg: "Deployment failed and there is no previous release"
+          when: previous_war | length == 0
+
+        - name: Roll back to the previous release
+          ansible.builtin.file:
+            src: "{{ previous_war }}"
+            dest: "{{ base_dir }}/current.war"
+            state: link
+            force: true
+
+        - name: Clear the failed state
+          ansible.builtin.command: systemctl reset-failed qbank
+          changed_when: false
+          failed_when: false
+
+        - name: Restart the service on the previous release
+          ansible.builtin.systemd:
+            name: qbank
+            state: restarted
+
+        - name: Health check after rollback
+          ansible.builtin.uri:
+            url: "http://localhost:{{ app_port }}/questions"
+            status_code: 200
+          register: health_after
+          retries: 15
+          delay: 4
+          until: health_after.status is defined and health_after.status == 200
+
+        - name: Report the rollback
+          ansible.builtin.debug:
+            msg: "ROLLED BACK to {{ previous_war }} because {{ release_version }} failed its health check"

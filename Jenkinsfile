@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        timeout(time: 20, unit: 'MINUTES')
+    }
+
     parameters {
         choice(name: 'DEPLOY_ENV', choices: ['dev', 'test', 'prod'],
                description: 'Target environment')
@@ -35,12 +39,20 @@ pipeline {
 
         stage('UI Tests') {
             steps {
-                // start a private copy of the app on port 9091 for the Selenium tests
-                withEnv(['JENKINS_NODE_COOKIE=dontKillMe']) {
-                    powershell '''
-                        Get-NetTCPConnection -LocalPort 9091 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
-                        Copy-Item target/qbank-0.0.1-SNAPSHOT.war qbank-test-run.war -Force
-                        Start-Process -FilePath java -ArgumentList '-jar','qbank-test-run.war','--server.port=9091' -RedirectStandardOutput app.log -RedirectStandardError app-err.log -WindowStyle Hidden
+                // One single step: start a private copy of the app on port 9091, run the
+                // Selenium tests, then stop the app again before the step ends.
+                // A failing test makes this step fail, so Deploy never runs.
+                powershell '''
+                    $ErrorActionPreference = 'Continue'
+                    Get-NetTCPConnection -LocalPort 9091 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
+                    Copy-Item target/qbank-0.0.1-SNAPSHOT.war qbank-test-run.war -Force
+
+                    $java = 'java'
+                    if ($env:JAVA_HOME) { $java = $env:JAVA_HOME + '/bin/java.exe' }
+                    $app = Start-Process -FilePath $java -ArgumentList '-jar','qbank-test-run.war','--server.port=9091' -RedirectStandardOutput app.log -RedirectStandardError app-err.log -WindowStyle Hidden -PassThru
+
+                    $code = 1
+                    try {
                         $ready = $false
                         for ($i = 0; $i -lt 40; $i++) {
                             try {
@@ -51,19 +63,25 @@ pipeline {
                                 Start-Sleep -Seconds 3
                             }
                         }
-                        if (-not $ready) { Write-Error 'App did not start on port 9091'; exit 1 }
-                    '''
-                }
-                // a failing test makes this command fail, which stops the pipeline before Deploy
-                bat 'mvn -B test -Dtest=*UiTest -Dheadless=true -Dbase.url=http://localhost:9091'
+                        if (-not $ready) {
+                            Write-Output 'App did not start on port 9091'
+                            $code = 1
+                        } else {
+                            Write-Output 'App is up on port 9091, running Selenium tests'
+                            mvn -B test "-Dtest=*UiTest" "-Dheadless=true" "-Dbase.url=http://localhost:9091"
+                            $code = $LASTEXITCODE
+                        }
+                    } finally {
+                        if ($app) { Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue }
+                        Get-NetTCPConnection -LocalPort 9091 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
+                    }
+                    exit $code
+                '''
             }
             post {
                 always {
                     junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
                     archiveArtifacts artifacts: 'target/screenshots/*.png, app.log, app-err.log', allowEmptyArchive: true
-                    powershell '''
-                        Get-NetTCPConnection -LocalPort 9091 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
-                    '''
                 }
             }
         }

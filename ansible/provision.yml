@@ -1,0 +1,74 @@
+---
+- name: Provision the QBank application server
+  hosts: qbank
+  become: true
+  tasks:
+    - name: Install Java 17 runtime and curl
+      ansible.builtin.apt:
+        name:
+          - openjdk-17-jre-headless
+          - curl
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Create the service group
+      ansible.builtin.group:
+        name: "{{ app_user }}"
+        system: true
+
+    - name: Create the service user (no login shell)
+      ansible.builtin.user:
+        name: "{{ app_user }}"
+        group: "{{ app_user }}"
+        system: true
+        shell: /usr/sbin/nologin
+        create_home: false
+
+    - name: Create application folders
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0755"
+      loop:
+        - "{{ base_dir }}"
+        - "{{ base_dir }}/releases"
+        - /var/log/qbank
+
+    - name: Install the systemd unit file
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/qbank.service
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=QBank Question Bank Portal
+          After=network.target
+
+          [Service]
+          User={{ app_user }}
+          ExecStart=/usr/bin/java -jar {{ base_dir }}/current.war --server.port={{ app_port }}
+          Restart=on-failure
+          RestartSec=5
+          StandardOutput=append:/var/log/qbank/qbank.log
+          StandardError=append:/var/log/qbank/qbank.log
+
+          [Install]
+          WantedBy=multi-user.target
+      notify: Reload systemd
+
+    - name: Reload systemd now if the unit changed
+      ansible.builtin.meta: flush_handlers
+
+    - name: Enable the service at boot
+      ansible.builtin.systemd:
+        name: qbank
+        enabled: true
+
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true

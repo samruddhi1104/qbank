@@ -32,9 +32,9 @@ public abstract class BaseUiTest {
     @BeforeAll
     static void startBrowser() {
         ChromeOptions options = new ChromeOptions();
-        if (Boolean.parseBoolean(System.getProperty("headless", "false"))) {
-            options.addArguments("--headless=new");
-        }
+         if (Boolean.parseBoolean(System.getProperty("headless", "false"))) {
+                options.addArguments("--headless=new", "--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
+              }
         options.addArguments("--window-size=1366,768");
         driver = new ChromeDriver(options);
     }

@@ -2,6 +2,65 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Question</title>
+  <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+  <div th:replace="~{fragments :: navbar('questions')}"></div>
+  <div class="container">
+    <h1>Edit Question</h1>
+    <p class="subtitle">Changing the subject moves the question to another folder.</p>
+
+    <form class="card" th:action="@{/questions/{id}/update(id=${question.id})}" th:object="${question}" method="post">
+      <div class="form-grid">
+        <div class="full">
+          <label class="lbl" for="text">Question</label>
+          <textarea id="text" th:field="*{text}" rows="3"></textarea>
+          <span class="error" th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></span>
+        </div>
+        <div>
+          <label class="lbl" for="subject">Subject (folder)</label>
+          <select id="subject" th:field="*{subject}">
+            <option th:each="s : ${subjects}" th:value="${s}" th:text="${s}"></option>
+          </select>
+          <span class="error" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></span>
+        </div>
+        <div>
+          <label class="lbl" for="topic">Topic</label>
+          <input id="topic" type="text" th:field="*{topic}">
+        </div>
+        <div>
+          <label class="lbl" for="difficulty">Difficulty</label>
+          <select id="difficulty" th:field="*{difficulty}">
+            <option value="EASY">Easy</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HARD">Hard</option>
+          </select>
+        </div>
+        <div style="align-self:end; display:flex; gap:12px; align-items:center">
+          <button id="updateBtn" class="btn" type="submit">Update Question</button>
+          <a th:href="@{/folders}">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
   <title>Edit Question</title>
   <link rel="stylesheet" th:href="@{/style.css}">
 </head>
@@ -35,4 +94,4 @@
     <a th:href="@{/questions}">Cancel</a>
   </form>
 </body>
-</html>
+</html> -->

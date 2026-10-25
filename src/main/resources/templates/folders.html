@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subject Folders | Question Bank</title>
+  <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+  <div th:replace="~{fragments :: navbar('folders')}"></div>
+  <div class="container">
+    <div class="folder-head">
+      <div>
+        <h1>Subject Folders</h1>
+        <p class="subtitle"><span th:text="${total}">0</span> questions in 3 folders</p>
+      </div>
+      <a class="btn" th:href="@{/questions}">+ Add question</a>
+    </div>
+
+    <div class="toast" th:if="${message}" th:text="${message}"></div>
+
+    <div class="folder-grid">
+      <a class="folder-card" th:each="f : ${folders}" th:href="@{/folders/{s}(s=${f.name})}">
+        <div class="folder-icon" th:text="${f.icon}">F</div>
+        <div class="folder-name" th:text="${f.name}">DevOps</div>
+        <div class="folder-count"><span th:text="${f.total}">0</span> question(s)</div>
+        <div class="chips">
+          <span class="badge st-DRAFT" th:if="${f.total == 0}">Empty</span>
+          <span class="badge st-DRAFT" th:if="${f.draft > 0}" th:text="${f.draft} + ' draft'"></span>
+          <span class="badge st-SUBMITTED" th:if="${f.submitted > 0}" th:text="${f.submitted} + ' submitted'"></span>
+          <span class="badge st-APPROVED" th:if="${f.approved > 0}" th:text="${f.approved} + ' approved'"></span>
+          <span class="badge st-REJECTED" th:if="${f.rejected > 0}" th:text="${f.rejected} + ' rejected'"></span>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

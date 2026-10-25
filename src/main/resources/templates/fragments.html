@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="navbar(active)" class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" th:href="@{/folders}"><span class="logo">Q</span> Question Bank</a>
+    <nav>
+      <a th:href="@{/folders}" th:classappend="${active == 'folders'} ? 'active'">Folders</a>
+      <a th:href="@{/questions}" th:classappend="${active == 'questions'} ? 'active'">Questions</a>
+      <a th:href="@{/dashboard}" th:classappend="${active == 'dashboard'} ? 'active'">Dashboard</a>
+    </nav>
+    <form class="role-form" th:action="@{/role}" method="post">
+      <label for="role">Current role:</label>
+      <select id="role" name="role">
+        <option value="TEACHER" th:selected="${role == 'TEACHER'}">TEACHER</option>
+        <option value="REVIEWER" th:selected="${role == 'REVIEWER'}">REVIEWER</option>
+      </select>
+      <input type="hidden" name="back" th:value="${self}">
+      <button class="btn sm light" type="submit">Switch</button>
+    </form>
+  </div>
+</header>
+
+<table th:fragment="qtable(list)" id="questionTable" class="qtable">
+  <tr>
+    <th>ID</th><th>Question</th><th>Subject</th><th>Topic</th><th>Difficulty</th><th>Status</th><th>Actions</th>
+  </tr>
+  <tr th:if="${#lists.isEmpty(list)}">
+    <td colspan="7" class="empty">No questions to show.</td>
+  </tr>
+  <tr th:each="q : ${list}">
+    <td th:text="${q.id}"></td>
+    <td th:text="${q.text}"></td>
+    <td><a th:href="@{/folders/{s}(s=${q.subject})}" th:text="${q.subject}"></a></td>
+    <td th:text="${q.topic}"></td>
+    <td><span class="badge" th:classappend="'df-' + ${q.difficulty}" th:text="${q.difficulty}"></span></td>
+    <td><span class="badge" th:classappend="'st-' + ${q.status}" th:text="${q.status}"></span></td>
+    <td>
+      <div class="actions">
+        <a class="btn sm ghost" th:href="@{/questions/{id}/edit(id=${q.id})}">Edit</a>
+        <form th:action="@{/questions/{id}/delete(id=${q.id})}" method="post">
+          <input type="hidden" name="back" th:value="${self}">
+          <button class="btn sm danger" type="submit">Delete</button>
+        </form>
+        <form th:if="${role == 'TEACHER' and (q.status == 'DRAFT' or q.status == 'REJECTED')}"
+              th:action="@{/questions/{id}/status(id=${q.id})}" method="post">
+          <input type="hidden" name="action" value="submit">
+          <input type="hidden" name="back" th:value="${self}">
+          <button class="btn sm" type="submit">Submit</button>
+        </form>
+        <th:block th:if="${role == 'REVIEWER' and q.status == 'SUBMITTED'}">
+          <form th:action="@{/questions/{id}/status(id=${q.id})}" method="post">
+            <input type="hidden" name="action" value="approve">
+            <input type="hidden" name="back" th:value="${self}">
+            <button class="btn sm ok" type="submit">Approve</button>
+          </form>
+          <form th:action="@{/questions/{id}/status(id=${q.id})}" method="post">
+            <input type="hidden" name="action" value="reject">
+            <input type="hidden" name="back" th:value="${self}">
+            <button class="btn sm danger" type="submit">Reject</button>
+          </form>
+        </th:block>
+      </div>
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

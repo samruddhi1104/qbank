@@ -1,0 +1,148 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20261018132357
+Username: LAPTOP-UCKGOBDJ\Samruddhi
+RunAs User: LAPTOP-UCKGOBDJ\Samruddhi
+Configuration Name: 
+Machine: LAPTOP-UCKGOBDJ (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\Samruddhi\AppData\Local\Programs\Microsoft VS Code\6d62b1d5da\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Process ID: 30536
+PSVersion: 5.1.26100.9711
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9711
+BuildVersion: 10.0.26100.9711
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is C:\Projects\qbank\docker-command-log.txt
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>mvn clean package -DskipTests
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>notepad Dockerfile
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>Remove-Item Dockerfile.txt -ErrorAction SilentlyContinue
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>dir Dockerfile*
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>Get-Content Dockerfile
+Get-Content : Cannot find path 'C:\Projects\qbank\Dockerfile' because it does not exist.
+At line:1 char:1
++ Get-Content Dockerfile
++ ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Projects\qbank\Dockerfile:String) [Get-Content], ItemNotFoundException
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+Get-Content : Cannot find path 'C:\Projects\qbank\Dockerfile' because it does not exist.
+At line:1 char:1
++ Get-Content Dockerfile
++ ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Projects\qbank\Dockerfile:String) [Get-Content], ItemNotFoundException
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>Set-Content -Path Dockerfile -Encoding ascii -Value @(
+'FROM eclipse-temurin:17-jre',
+'WORKDIR /app',
+'COPY target/qbank-0.0.1-SNAPSHOT.war app.war',
+'EXPOSE 8080',
+'ENTRYPOINT ["java", "-jar", "app.war"]'
+)
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>Set-Content -Path .dockerignore -Encoding ascii -Value @(
+'target/*',
+'!target/qbank-0.0.1-SNAPSHOT.war',
+'.git'
+)
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>dir Dockerfile*
+
+
+    Directory: C:\Projects\qbank
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        18-10-2026     13:28            142 Dockerfile
+
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>Get-Content Dockerfile
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY target/qbank-0.0.1-SNAPSHOT.war app.war
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.war"]
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>dir target\*.war
+
+
+    Directory: C:\Projects\qbank\target
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        18-10-2026     13:25       55717544 qbank-0.0.1-SNAPSHOT.war
+
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker build -t qbank:1.0 .
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker tag qbank:1.0 qbank:latest
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker images
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker run -d --name qbank-container -p 9092:8080 qbank:1.0
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker ps
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker logs qbank-container
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker logs --tail 20 qbank-container
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker inspect qbank-container
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker inspect qbank:1.0
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker stats --no-stream
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker stop qbank-container
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker ps -a
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker start qbank-container
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker restart qbank-container
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker ps
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker stop qbank-container
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker rm qbank-container
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>docker ps -a
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cProjects\x5cqbankPS C:\Projects\qbank> ]633;B
+PS>Stop-Transcript
+**********************
+Windows PowerShell transcript end
+End time: 20261018134213
+**********************

@@ -2,6 +2,61 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard</title>
+  <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+  <div th:replace="~{fragments :: navbar('dashboard')}"></div>
+  <div class="container">
+    <h1>Dashboard</h1>
+    <p class="subtitle">The state of the question bank at a glance.</p>
+
+    <div class="stat-grid">
+      <div class="stat"><span>Total</span><b id="totalCount" th:text="${total}">0</b></div>
+      <div class="stat"><span>Draft</span><b th:text="${draft}">0</b></div>
+      <div class="stat"><span>Submitted</span><b th:text="${submitted}">0</b></div>
+      <div class="stat"><span>Approved</span><b th:text="${approved}">0</b></div>
+      <div class="stat"><span>Rejected</span><b th:text="${rejected}">0</b></div>
+    </div>
+
+    <div class="card bars">
+      <h2 style="margin-top:0">Status overview</h2>
+      <div class="row"><span class="name">Draft</span>
+        <div class="track"><div class="fill DRAFT" th:style="'width:' + (${total} > 0 ? ${draft} * 100 / ${total} : 0) + '%'"></div></div>
+        <span class="num" th:text="${draft}">0</span></div>
+      <div class="row"><span class="name">Submitted</span>
+        <div class="track"><div class="fill SUBMITTED" th:style="'width:' + (${total} > 0 ? ${submitted} * 100 / ${total} : 0) + '%'"></div></div>
+        <span class="num" th:text="${submitted}">0</span></div>
+      <div class="row"><span class="name">Approved</span>
+        <div class="track"><div class="fill APPROVED" th:style="'width:' + (${total} > 0 ? ${approved} * 100 / ${total} : 0) + '%'"></div></div>
+        <span class="num" th:text="${approved}">0</span></div>
+      <div class="row"><span class="name">Rejected</span>
+        <div class="track"><div class="fill REJECTED" th:style="'width:' + (${total} > 0 ? ${rejected} * 100 / ${total} : 0) + '%'"></div></div>
+        <span class="num" th:text="${rejected}">0</span></div>
+    </div>
+
+    <h2>Questions by subject</h2>
+    <table class="qtable">
+      <tr><th>Subject (folder)</th><th>Count</th></tr>
+      <tr th:each="e : ${bySubject}">
+        <td><a th:href="@{/folders/{s}(s=${e.key})}" th:text="'📁 ' + ${e.key}"></a></td>
+        <td th:text="${e.value}"></td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
   <title>Dashboard</title>
   <link rel="stylesheet" th:href="@{/style.css}">
 </head>
@@ -29,4 +84,4 @@
     </tr>
   </table>
 </body>
-</html>
+</html> -->

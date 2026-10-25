@@ -2,94 +2,70 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Question Bank Portal</title>
   <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
-  <h1>Automated Question Bank Portal v2</h1>
-  <nav>
-    <a th:href="@{/questions}">Questions</a>
-    <a th:href="@{/dashboard}">Dashboard</a>
-  </nav>
+  <div th:replace="~{fragments :: navbar('questions')}"></div>
+  <div class="container">
+    <h1>Automated Question Bank Portal</h1>
+    <p class="subtitle">Choose a subject folder and add a question. After saving, you are taken to that folder.</p>
 
-  <form th:action="@{/role}" method="post" class="bar">
-    <label for="role">Current role:</label>
-    <select id="role" name="role">
-      <option value="TEACHER" th:selected="${role == 'TEACHER'}">TEACHER</option>
-      <option value="REVIEWER" th:selected="${role == 'REVIEWER'}">REVIEWER</option>
-    </select>
-    <button class="small" type="submit">Switch</button>
-  </form>
+    <div class="toast" th:if="${message}" th:text="${message}"></div>
 
-  <form th:action="@{/questions}" th:object="${question}" method="post" class="box">
-    <label for="text">Question</label>
-    <textarea id="text" th:field="*{text}" rows="3"></textarea>
-    <span class="error" th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></span>
+    <form class="card" th:action="@{/questions}" th:object="${question}" method="post">
+      <div class="form-grid">
+        <div class="full">
+          <label class="lbl" for="text">Question</label>
+          <textarea id="text" th:field="*{text}" rows="3" placeholder="Type the question here"></textarea>
+          <span class="error" th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></span>
+        </div>
+        <div>
+          <label class="lbl" for="subject">Subject (folder)</label>
+          <select id="subject" th:field="*{subject}">
+            <option value="">-- Select a folder --</option>
+            <option th:each="s : ${subjects}" th:value="${s}" th:text="${s}"></option>
+          </select>
+          <span class="error" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></span>
+        </div>
+        <div>
+          <label class="lbl" for="topic">Topic</label>
+          <input id="topic" type="text" th:field="*{topic}" placeholder="e.g. Jenkins, CNN, Tokenization">
+        </div>
+        <div>
+          <label class="lbl" for="difficulty">Difficulty</label>
+          <select id="difficulty" th:field="*{difficulty}">
+            <option value="">-- Select --</option>
+            <option value="EASY">Easy</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HARD">Hard</option>
+          </select>
+          <span class="error" th:if="${#fields.hasErrors('difficulty')}" th:errors="*{difficulty}"></span>
+        </div>
+        <div style="align-self:end">
+          <button id="saveBtn" class="btn" type="submit">Save Question</button>
+        </div>
+      </div>
+    </form>
 
-    <label for="subject">Subject</label>
-    <input id="subject" type="text" th:field="*{subject}">
-    <span class="error" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></span>
+    <h2>All Questions</h2>
+    <form class="bar" th:action="@{/questions}" method="get">
+      <input id="keyword" type="text" name="keyword" th:value="${keyword}" placeholder="Search text, subject or topic">
+      <select id="statusFilter" name="status">
+        <option value="">All statuses</option>
+        <option value="DRAFT" th:selected="${statusFilter == 'DRAFT'}">Draft</option>
+        <option value="SUBMITTED" th:selected="${statusFilter == 'SUBMITTED'}">Submitted</option>
+        <option value="APPROVED" th:selected="${statusFilter == 'APPROVED'}">Approved</option>
+        <option value="REJECTED" th:selected="${statusFilter == 'REJECTED'}">Rejected</option>
+      </select>
+      <button id="searchBtn" class="btn" type="submit">Search</button>
+      <a th:href="@{/questions}">Clear</a>
+    </form>
 
-    <label for="topic">Topic</label>
-    <input id="topic" type="text" th:field="*{topic}">
-
-    <label for="difficulty">Difficulty</label>
-    <select id="difficulty" th:field="*{difficulty}">
-      <option value="">-- Select --</option>
-      <option value="EASY">Easy</option>
-      <option value="MEDIUM">Medium</option>
-      <option value="HARD">Hard</option>
-    </select>
-    <span class="error" th:if="${#fields.hasErrors('difficulty')}" th:errors="*{difficulty}"></span>
-
-    <button id="saveBtn" type="submit" style="margin-top:12px">Save Question</button>
-  </form>
-
-  <h2>All Questions</h2>
-  <form th:action="@{/questions}" method="get" class="bar">
-    <input id="keyword" type="text" name="keyword" th:value="${keyword}" placeholder="Search text, subject or topic">
-    <select id="statusFilter" name="status">
-      <option value="">All statuses</option>
-      <option value="DRAFT" th:selected="${statusFilter == 'DRAFT'}">Draft</option>
-      <option value="SUBMITTED" th:selected="${statusFilter == 'SUBMITTED'}">Submitted</option>
-      <option value="APPROVED" th:selected="${statusFilter == 'APPROVED'}">Approved</option>
-      <option value="REJECTED" th:selected="${statusFilter == 'REJECTED'}">Rejected</option>
-    </select>
-    <button id="searchBtn" type="submit">Search</button>
-    <a th:href="@{/questions}">Clear</a>
-  </form>
-
-  <table id="questionTable">
-    <tr><th>ID</th><th>Question</th><th>Subject</th><th>Topic</th><th>Difficulty</th><th>Status</th><th>Actions</th></tr>
-    <tr th:each="q : ${questions}">
-      <td th:text="${q.id}"></td>
-      <td th:text="${q.text}"></td>
-      <td th:text="${q.subject}"></td>
-      <td th:text="${q.topic}"></td>
-      <td th:text="${q.difficulty}"></td>
-      <td th:text="${q.status}"></td>
-      <td>
-        <a th:href="@{/questions/{id}/edit(id=${q.id})}">Edit</a>
-        <form th:action="@{/questions/{id}/delete(id=${q.id})}" method="post" style="display:inline">
-          <button class="small danger" type="submit">Delete</button>
-        </form>
-        <form th:if="${role == 'TEACHER' and (q.status == 'DRAFT' or q.status == 'REJECTED')}"
-              th:action="@{/questions/{id}/status(id=${q.id})}" method="post" style="display:inline">
-          <input type="hidden" name="action" value="submit">
-          <button class="small" type="submit">Submit</button>
-        </form>
-        <th:block th:if="${role == 'REVIEWER' and q.status == 'SUBMITTED'}">
-          <form th:action="@{/questions/{id}/status(id=${q.id})}" method="post" style="display:inline">
-            <input type="hidden" name="action" value="approve">
-            <button class="small ok" type="submit">Approve</button>
-          </form>
-          <form th:action="@{/questions/{id}/status(id=${q.id})}" method="post" style="display:inline">
-            <input type="hidden" name="action" value="reject">
-            <button class="small danger" type="submit">Reject</button>
-          </form>
-        </th:block>
-      </td>
-    </tr>
-  </table>
+    <div class="table-wrap">
+      <table th:replace="~{fragments :: qtable(${questions})}"></table>
+    </div>
+  </div>
 </body>
 </html>
